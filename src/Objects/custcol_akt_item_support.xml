@@ -1,0 +1,67 @@
+<transactioncolumncustomfield scriptid="custcol_akt_item_support">
+  <accesslevel>2</accesslevel>
+  <applyformatting>F</applyformatting>
+  <colexpense>F</colexpense>
+  <colexpensereport>F</colexpensereport>
+  <colgrouponinvoices>F</colgrouponinvoices>
+  <colinventoryadjustment>F</colinventoryadjustment>
+  <colitemfulfillment>F</colitemfulfillment>
+  <colitemfulfillmentorder>F</colitemfulfillmentorder>
+  <colitemreceipt>F</colitemreceipt>
+  <colitemreceiptorder>F</colitemreceiptorder>
+  <coljournal>F</coljournal>
+  <colkititem>F</colkititem>
+  <colopportunity>F</colopportunity>
+  <colpackingslip>F</colpackingslip>
+  <colperiodendjournal>F</colperiodendjournal>
+  <colpickingticket>F</colpickingticket>
+  <colprintflag>F</colprintflag>
+  <colpurchase>F</colpurchase>
+  <colreturnform>F</colreturnform>
+  <colsale>T</colsale>
+  <colstore>F</colstore>
+  <colstorehidden>F</colstorehidden>
+  <colstorewithgroups>F</colstorewithgroups>
+  <coltransferorder>F</coltransferorder>
+  <columncustomtransactions></columncustomtransactions>
+  <defaultchecked>F</defaultchecked>
+  <defaultselection></defaultselection>
+  <defaultvalue></defaultvalue>
+  <description>Created 11/2022 by MDIMKOV&#xd;
+This field on return authorization line is used by the support&#xd;
+staff to select an item only among a specific subset of items&#xd;
+then, the [akt_set_item_cs.js] client script fires on fieldChanged&#xd;
+to set the right item; the idea is to shorten the list of available items&#xd;
+for support staff&#xd;
+for more information please contact&#xd;
+mdimkov@travizer.com</description>
+  <displayheight></displayheight>
+  <displaytype>NORMAL</displaytype>
+  <displaywidth></displaywidth>
+  <dynamicdefault></dynamicdefault>
+  <encryptatrest>F</encryptatrest>
+  <fieldtype>SELECT</fieldtype>
+  <help>Created 11/2022 by MDIMKOV&#xd;
+This field on return authorization line is used by the support&#xd;
+staff to select an item only among a specific subset of items&#xd;
+then, the [akt_set_item_cs.js] client script fires on fieldChanged&#xd;
+to set the right item; the idea is to shorten the list of available items&#xd;
+for support staff&#xd;
+for more information please contact&#xd;
+mdimkov@travizer.com</help>
+  <isformula>F</isformula>
+  <ismandatory>F</ismandatory>
+  <label>Item (Support)</label>
+  <linktext></linktext>
+  <maxlength></maxlength>
+  <maxvalue></maxvalue>
+  <minvalue></minvalue>
+  <onparentdelete>NO_ACTION</onparentdelete>
+  <searchlevel>2</searchlevel>
+  <selectrecordtype>[scriptid=customrecord_akt_item_support]</selectrecordtype>
+  <showhierarchy>F</showhierarchy>
+  <sourcefilterby></sourcefilterby>
+  <sourcefrom></sourcefrom>
+  <sourcelist></sourcelist>
+  <storevalue>T</storevalue>
+</transactioncolumncustomfield>

@@ -1,0 +1,19 @@
+<customlist scriptid="customlist_akt_return_type">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>T</isordered>
+  <name>AKT Return Type</name>
+  <customvalues>
+    <customvalue scriptid="val_692542_8035173_586">
+      <abbreviation>R</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Replacement</value>
+    </customvalue>
+    <customvalue scriptid="val_692543_8035173_712">
+      <abbreviation>R</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Refund</value>
+    </customvalue>
+  </customvalues>
+</customlist>

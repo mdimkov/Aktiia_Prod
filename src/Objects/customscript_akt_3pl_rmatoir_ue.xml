@@ -1,0 +1,31 @@
+<usereventscript scriptid="customscript_akt_3pl_rmatoir_ue">
+  <description>&quot;this UE script, deployed on [AKT Integr RMA tо IR], firing on [beforeSubmit], does the following:&#xd;
+           - captures the respective return authorization, before the custom record has been created, along with the return items booked&#xd;
+           - tries to create an item receipt with JSON information about the items&#xd;
+           - because of many limiations, the items returned will be either stand-alone items (in case of replacement) or kit items with up to 2 components (in case of refund)&#xd;
+           - if the script fails, the whole creation of the record fails, which signals back to Celigo and raises an error message&#xd;
+           - once the item receipt is created, it&apos;s stamped into the respective field on the custom record type&quot;</description>
+  <isinactive>F</isinactive>
+  <name>AKT Integr RMA tо IR</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/Scripts/3PL Integrations/akt_3pl_rmatoir_ue.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_akt_3pl_rmatoir_ue">
+      <allemployees>T</allemployees>
+      <alllocalizationcontexts>T</alllocalizationcontexts>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <executioncontext>ACTION|ADVANCEDREVREC|BANKCONNECTIVITY|BANKSTATEMENTPARSER|BUNDLEINSTALLATION|CLIENT|CONSOLRATEADJUSTOR|CSVIMPORT|CUSTOMGLLINES|CUSTOMMASSUPDATE|DATASETBUILDER|DEBUGGER|EMAILCAPTURE|FICONNECTIVITY|FIPARSER|MAPREDUCE|OCRPLUGIN|OTHER|PAYMENTGATEWAY|PAYMENTPOSTBACK|PLATFORMEXTENSION|PORTLET|PROMOTIONS|RECORDACTION|RESTLET|RESTWEBSERVICES|SCHEDULED|SDFINSTALLATION|SHIPPINGPARTNERS|SUITELET|TAXCALCULATION|USEREVENT|USERINTERFACE|WEBSERVICES|WORKBOOKBUILDER|WORKFLOW</executioncontext>
+      <isdeployed>T</isdeployed>
+      <loglevel>DEBUG</loglevel>
+      <recordtype>[scriptid=customrecord_akt_rmatoir]</recordtype>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>RELEASED</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</usereventscript>

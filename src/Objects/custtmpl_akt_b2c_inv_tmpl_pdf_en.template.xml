@@ -1,0 +1,205 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;"><tr>
+	<td rowspan="3" style="text-align: left; vertical-align: middle;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><strong>${companyinformation.url@label}&nbsp;:</strong></span></span>&nbsp;<span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${companyinformation.url}<br />support@aktiia.com</span></span><br />&nbsp;</td>
+	<td align="right"><img src="http://8035173.shop.netsuite.com/core/media/media.nl?id=311&amp;c=8035173&amp;h=zKHucWVvnb23Bei-X5Ao4IWIrX-t7h4FmKlxheiYtuqoeBuK" style="width: 250px; height: 79px;" /></td>
+	</tr>
+	<tr>
+	<td align="right"><br /><span style="font-size:18px;"><strong><span style="font-family:Arial,Helvetica,sans-serif;">Invoice</span></strong></span>&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="right">&nbsp;</td>
+	</tr></table>
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td style="width: 600px;"><span style="font-size:10px;"><span style="font-family:Arial,Helvetica,sans-serif;">Head office: Aktiia SA Rue du Bassin 8A - 2000 Neuchatel&nbsp;(CH) -&nbsp; IDE number : CHE-149.232.500 IDE- 2 years guarantee&nbsp;</span></span></td>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+		table {
+			font-size: 9pt;
+			table-layout: fixed;
+		}
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+		td p { align:left }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0px;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0px;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="10%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table align="right" style="margin-top:10px;width:100%;"><tr>
+	<td class="addressheader" colspan="3" style="text-align: left; vertical-align: middle;">
+	<p>&nbsp;</p>
+	<br /><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><b>Billing address</b></span></span></td>
+	<td class="addressheader" colspan="3" style="text-align: left; vertical-align: middle;">
+	<p>&nbsp;</p>
+	<br /><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><b>Shipping address</b></span></span></td>
+	<td class="addressheader" colspan="3" style="text-align: left; vertical-align: middle;"><br /><br /><br /><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><strong>${subsidiary.name}</strong></span></span></td>
+	</tr>
+	<tr>
+	<td class="address" colspan="3" rowspan="2" style="text-align: left; vertical-align: top;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.billaddress}<br /><br />${record.custbodynbs702_email_billing}</span></span></td>
+	<td class="address" colspan="3" rowspan="2" style="vertical-align: top;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.shipaddress}</span></span></td>
+	<td class="address" colspan="3" rowspan="2" style="text-align: right; vertical-align: top;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${subsidiary.mainaddress_text}</span></span><br /><br /><br /><br /><br /><span style="font-size:12px;"><font face="Arial, Helvetica, sans-serif"><b>Tax Number</b></font> :&nbsp;<span style="font-family:Arial,Helvetica,sans-serif;">${record.custbody_akt_vat_reg_num}</span></span></td>
+	</tr></table>
+
+<table class="body" style="width: 100%; margin-top: 10px;"><tr>
+	<th style="height: 8px; width: 93px; background-color: rgb(0, 95, 96); text-align: left;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="color:#ffffff;">Invoice date</span></span></span></th>
+	<th style="height: 8px; width: 110px; background-color: rgb(0, 95, 96);"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="color:#ffffff;">Shipping date</span></span></span></th>
+	<th style="height: 8px; width: 125px; background-color: rgb(0, 95, 96);"><span style="color:#ffffff;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><strong>Payment method</strong></span></span></span></th>
+	<th colspan="2" style="height: 8px; width: 126px; background-color: rgb(0, 95, 96);"><span style="color:#ffffff;"><font face="Arial, Helvetica, sans-serif"><span style="font-size: 12px;">Order reference</span></font></span></th>
+	<th colspan="2" style="height: 8px; width: 143px; background-color: rgb(0, 95, 96);"><span style="color:#ffffff;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.tranid@label}</span></span></span></th>
+	</tr>
+	<tr>
+	<td style="width: 93px; vertical-align: middle;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.trandate}</span></span><br />&nbsp;</td>
+	<td style="width: 100px; vertical-align: middle;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.trandate}</span></span><br />&nbsp;</td>
+	<td style="width: 125px; vertical-align: middle;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">Online payment</span></span><br />&nbsp;</td>
+	<td colspan="2" style="width: 126px; vertical-align: middle;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.custbody_nbs702_storefront_order}</span></span><br />&nbsp;</td>
+	<td colspan="2" style="width: 143px; vertical-align: middle;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.tranid}</span></span><br />&nbsp;</td>
+	</tr></table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th colspan="2" style="text-align: left; background-color: rgb(221, 221, 221); width: 61px;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${item.quantity@label}</span></span></th>
+	<th colspan="12" style="background-color: rgb(221, 221, 221);"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${item.item@label}</span></span></th>
+	<th align="right" colspan="2" style="background-color: rgb(221, 221, 221); width: 60px;"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">VAT Rate</span></span></th>
+	<th align="right" colspan="3" style="background-color: rgb(221, 221, 221);"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${item.amount@label}</span></span></th>
+	<th align="right" colspan="3" style="background-color: rgb(221, 221, 221);"><strong><span style="font-family:Arial,Helvetica,sans-serif;"><span style="font-size:12px;">Gross Amt</span></span></strong></th>
+	</tr>
+</thead>
+</#if><!-- MDIMKOV: only show main items--><#if 1==1><tr>
+	<td align="center" colspan="2" line-height="150%" style="width: 61px;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="font-size:12px;">${item.quantity}</span></span></td>
+	<td colspan="12"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><span class="itemname">${item.custcol_akt_nameoninvoice_en}</span></span></span></td>
+	<td align="right" colspan="2">${item.taxrate1}</td>
+	<td align="right" colspan="3">${item.amount}</td>
+	<td align="right" colspan="3">${item.grossamt}</td>
+	</tr>
+	</#if></#list><!-- end items --></table>
+
+<hr /></#if>
+<table class="total" style="width: 100%; margin-top: 10px;"><tr>
+	<td colspan="4">&nbsp;</td>
+	<td style="width: 150px; text-align: right;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="font-size:12px;"><b>${record.subtotal@label}</b></span></span></td>
+	<td align="right"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.subtotal}</span></span></td>
+	</tr>
+	<tr>
+	<td colspan="4">&nbsp;</td>
+	<td style="width: 150px; text-align: right;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="font-size:12px;"><b>Shipping Cost</b></span></span></td>
+	<td align="right"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.shippingcost}</span></span></td>
+	</tr>
+	<tr>
+	<td colspan="4">&nbsp;</td>
+	<td style="width: 150px; text-align: right;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="font-size:12px;"><b>Tax Total</b></span></span></td>
+	<td align="right"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;">${record.taxtotal}</span></span></td>
+	</tr>
+	<tr class="totalrow">
+	<td background-color="#ffffff" colspan="4"><span style="font-size:9px;"><span style="font-family:Arial,Helvetica,sans-serif;"><i>The exporter of the products covered by this invoice declares that these products are made in China.</i></span></span></td>
+	<td align="right" style="background-color: rgb(0, 95, 96);"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><strong><span style="color:#ffffff;">${record.total@label}</span></strong></span></span></td>
+	<td align="right" style="background-color: rgb(0, 95, 96);"><span style="font-size:12px;"><span style="font-family:Arial,Helvetica,sans-serif;"><span style="color:#ffffff;">${record.total}</span></span></span></td>
+	</tr></table>
+</body>
+</pdf>

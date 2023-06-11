@@ -1,0 +1,19 @@
+<customlist scriptid="customlist_akt_yes_no">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>T</isordered>
+  <name>AKT Yes No</name>
+  <customvalues>
+    <customvalue scriptid="val_692555_8035173_844">
+      <abbreviation>Y</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Yes</value>
+    </customvalue>
+    <customvalue scriptid="val_692556_8035173_814">
+      <abbreviation>N</abbreviation>
+      <isinactive>F</isinactive>
+      <value>No</value>
+    </customvalue>
+  </customvalues>
+</customlist>

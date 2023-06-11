@@ -1,0 +1,9 @@
+<advancedpdftemplate scriptid="custtmpl_akt_b2b_inv_tmpl_pdf_en" standard="STDTMPLCUSTINVC">
+  <description></description>
+  <displaysourcecode>F</displaysourcecode>
+  <isinactive>F</isinactive>
+  <preferred>T</preferred>
+  <printtype>TRANSACTION</printtype>
+  <title>Aktiia Invoice B2B EN PDF</title>
+  <trantype>CUSTINVC</trantype>
+</advancedpdftemplate>

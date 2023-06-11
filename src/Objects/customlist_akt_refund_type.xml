@@ -1,0 +1,19 @@
+<customlist scriptid="customlist_akt_refund_type">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>T</isordered>
+  <name>AKT Refund Type</name>
+  <customvalues>
+    <customvalue scriptid="val_692169_8035173_173">
+      <abbreviation>R</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Full</value>
+    </customvalue>
+    <customvalue scriptid="val_692170_8035173_896">
+      <abbreviation>R</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Partial</value>
+    </customvalue>
+  </customvalues>
+</customlist>

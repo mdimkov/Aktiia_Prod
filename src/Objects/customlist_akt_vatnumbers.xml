@@ -1,0 +1,29 @@
+<customlist scriptid="customlist_akt_vatnumbers">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>T</ismatrixoption>
+  <isordered>T</isordered>
+  <name>VAT numbers</name>
+  <customvalues>
+    <customvalue scriptid="val_110901_8035173_947">
+      <abbreviation>SA-CH</abbreviation>
+      <isinactive>F</isinactive>
+      <value>CHE-149.232.500</value>
+    </customvalue>
+    <customvalue scriptid="val_110902_8035173_120">
+      <abbreviation>BV-NL</abbreviation>
+      <isinactive>F</isinactive>
+      <value>NL862305688B01</value>
+    </customvalue>
+    <customvalue scriptid="val_110903_8035173_883">
+      <abbreviation>SA-GB</abbreviation>
+      <isinactive>F</isinactive>
+      <value>GB379786416</value>
+    </customvalue>
+    <customvalue scriptid="val_110904_8035173_190">
+      <abbreviation>BV-GB</abbreviation>
+      <isinactive>F</isinactive>
+      <value>GB381202723</value>
+    </customvalue>
+  </customvalues>
+</customlist>
