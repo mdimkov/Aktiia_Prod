@@ -11,7 +11,7 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib.js'],
      */
     (record, search, _lib) => {
 
-        /* MDIMKOV 21.02.2023: This client script, deployed on [vendor bill], acting on fieldChanged, does the following:
+        /* MDIMKOV 21.02.2023: This client script, deployed on [vendor bill], acting on [saveRecord], does the following:
             - removes all spaces from the string entered in the QR code field, when the users navigates away from it
         * */
 
@@ -41,23 +41,7 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib.js'],
          * @since 2015.2
          */
         function fieldChanged(context) {
-            try {
-                log.debug('MDIMKOV', '');
-                log.debug('MDIMKOV', '--- SCRIPT START ---');
 
-                const fieldId = context.fieldId;
-
-                if (fieldId == 'custbody_2663_reference_num') {
-                    log.debug('MDIMKOV', 'Field changed, proceed with updates...');
-                    const rec = context.currentRecord;
-                    const vertoSSR = rec.getValue('custbody_2663_reference_num');
-                    rec.setValue('custbody_2663_reference_num', vertoSSR.replace(/ /g, ""));
-                }
-
-                log.debug('MDIMKOV', '--- SCRIPT END ---');
-            } catch (e) {
-                log.error('ERROR', e.message + ' --- ' + e.stack);
-            }
         }
 
         /**
@@ -173,12 +157,26 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib.js'],
          * @since 2015.2
          */
         function saveRecord(context) {
+            try {
+                log.debug('MDIMKOV', '');
+                log.debug('MDIMKOV', '--- SCRIPT START ---');
 
+                const rec = context.currentRecord;
+                const vertoSSR = rec.getValue('custbody_2663_reference_num');
+                rec.setValue('custbody_2663_reference_num', vertoSSR.replace(/ /g, ""));
+
+                log.debug('MDIMKOV', '--- SCRIPT END ---');
+
+                return true;
+            } catch (e) {
+                log.error('ERROR', e.message + ' --- ' + e.stack);
+                return true;
+            }
         }
 
         return {
             // pageInit: pageInit,
-            fieldChanged: fieldChanged,
+            // fieldChanged: fieldChanged,
             // postSourcing: postSourcing,
             // sublistChanged: sublistChanged,
             // lineInit: lineInit,
@@ -186,7 +184,7 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib.js'],
             // validateLine: validateLine,
             // validateInsert: validateInsert,
             // validateDelete: validateDelete,
-            // saveRecord: saveRecord
+            saveRecord: saveRecord
         };
 
     });

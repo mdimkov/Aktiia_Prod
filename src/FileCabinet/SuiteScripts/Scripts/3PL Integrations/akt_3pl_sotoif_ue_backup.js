@@ -321,7 +321,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 const newItem = {
                                     SKU: item.SKU,
                                     Quantity: item.Quantity,
-                                    SerialNumbers: [...item.SerialNumbers],
+                                    SerialNumbers: item.SerialNumbers ? [...item.SerialNumbers] : [],
                                 };
                                 itemMap.set(item.SKU, newItem);
                                 summary.bundles[0].items.push(newItem);
@@ -336,6 +336,50 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
             }
 
             return resultArray;
+        }
+
+
+        // MDIMKOV 17.03.2023: this function changes a bit the structure for bundles for Chain Global / Hecny
+        function summarizeBundlesForChg(inputArray) {
+            const outputJSON = [];
+
+            inputArray.forEach((item) => {
+                item.Quantity = 1;
+
+                // MDIMKOV 11.09.2023: for bundles
+                if (item.bundles) {
+                    item.bundles.forEach((bundle) => {
+                        const newBundle = {
+                            bundleNo: "",
+                            items: bundle.items
+                        };
+
+                        const newItem = {
+                            SKU: item.SKU,
+                            Quantity: 1,
+                            bundles: [newBundle]
+                        };
+
+                        outputJSON.push(newItem);
+                    });
+                } else {
+                    // MDIMKOV 11.09.2023: for stand-alone items (or single components)
+                    const newBundle = {
+                        bundleNo: "",
+                        items: item
+                    };
+
+                    const newItem = {
+                        SKU: item.SKU,
+                        Quantity: 1,
+                        bundles: [newBundle]
+                    };
+
+                    outputJSON.push(newItem);
+                }
+            });
+
+            return outputJSON;
         }
 
 
@@ -381,7 +425,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                     // MDIMKOV 13.10.2022: based on which 3PL provider is sending the call, redirect to a different block of code
                     if (providerName === 'OGL') {
 
-                        // ========================= OGL / MINTSOFT [KIT ITEM WITH SERIAL NUMBERS] START ========================= //
+                        // ========================= OGL / MINTSOFT START ========================= //
 
                         /* MDIMKOV 12.10.2022: Mintsoft raw data expected:
                         *	    [
@@ -471,6 +515,21 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                             "ID": 10391,
                             "LastUpdated": "2023-04-27T22:45:01.1012608",
                             "LastUpdatedByUser": "Jason.Wang"
+                        }, {      ------ as previous: kit item (KITNS) => both batchNo/SerialNo populated for the component items serial numbers
+                            "OrderItemId": 87210,
+                            "ProductInLocationId": 0,
+                            "OrderId": 59307,
+                            "Quantity": 1,
+                            "ManuallyConfirmed": false,
+                            "Barcode": "KITNS (S)",
+                            "BatchNo": "Test-20230427-4",
+                            "SerialNo": "Test-20230427-3",
+                            "MobileApp": false,
+                            "BoxNumber": 1,
+                            "SSCCNumber": null,
+                            "ID": 10391,
+                            "LastUpdated": "2023-04-27T22:45:01.1012608",
+                            "LastUpdatedByUser": "Jason.Wang"
                         }, {      ------ stand-alone serialized item (Bracelet) => no SerialNo only
                             "OrderItemId": 87207,
                             "ProductInLocationId": 0,
@@ -501,7 +560,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                             "ID": 10393,
                             "LastUpdated": "2023-04-27T22:47:07.3621141",
                             "LastUpdatedByUser": "Jason.Wang"
-                        }, {        ------ the same: stand-alone NON-serialized item (SomeItem) => no batchNo/SerialNo
+                        }, {        ------ as previous: stand-alone NON-serialized item (SomeItem) => no batchNo/SerialNo
                             "OrderItemId": 87209,
                             "ProductInLocationId": 0,
                             "OrderId": 59307,
@@ -539,6 +598,20 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 "ManuallyConfirmed": false,
                                 "BatchNo": "Test-20230427-2",
                                 "SerialNo": "Test-20230427-1",
+                                "MobileApp": false,
+                                "BoxNumber": 1,
+                                "SSCCNumber": null,
+                                "ID": 10391,
+                                "LastUpdated": "2023-04-27T22:45:01.1012608",
+                                "LastUpdatedByUser": "Jason.Wang"
+                            }, {
+                                "OrderItemId": 87210,
+                                "ProductInLocationId": 0,
+                                "OrderId": 59307,
+                                "Quantity": 1,
+                                "ManuallyConfirmed": false,
+                                "BatchNo": "Test-20230427-4",
+                                "SerialNo": "Test-20230427-3",
                                 "MobileApp": false,
                                 "BoxNumber": 1,
                                 "SSCCNumber": null,
@@ -620,6 +693,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                             });
                         }
 
+
+                        /* MDIMKOV 05.05.2023: before proceeding to the iteration, the following properties are used to identify the item type:
+                        *    - serialized kit item (main line):      case: [10]   itemtype: "Kit"        kitlevel: <irrelevant>   inventorydetailreq: "T"
+                        *    - serialized kit item (component line): case: [20]   itemtype: "InvtPart"   kitlevel: "1"            inventorydetailreq: "F"
+                        *    - serialized stand-alone item:          case: [30]   itemtype: "InvtPart"   kitlevel: null           inventorydetailreq: "T"
+                        *    - non-serialized stand-alone item:      case: [40]   itemtype: "InvtPart"   kitlevel: null           inventorydetailreq: "F"
+                        * */
+
+
                         const lineCount = recIf.getLineCount({
                             sublistId: 'item'
                         });
@@ -649,16 +731,31 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 line: i
                             });
 
+                            const itemType = recIf.getSublistValue({
+                                sublistId: 'item',
+                                fieldId: 'itemtype',
+                                line: i
+                            });
+
+                            const kitLevel = recIf.getSublistValue({
+                                sublistId: 'item',
+                                fieldId: 'kitlevel',
+                                line: i
+                            });
+
                             const invDetailRequired = recIf.getSublistValue({
                                 sublistId: 'item',
                                 fieldId: 'inventorydetailreq',
                                 line: i
                             });
 
+                            log.debug('MDIMKOV', 'line properties: itemType: ' + itemType + '; kitLevel: ' + kitLevel + '; invDetailRequired: ' + invDetailRequired);
+
                             // MDIMKOV 11.10.2022: if this is the main item in the kit item, get the name, exctract the JSON block, get the quantity etc.
                             // note that the same JSON block will be used for the next 2 lines as well
-                            if (invDetailRequired === 'F') {
-                                log.debug('MDIMKOV', '... this is a kit (main) item line');
+                            if (itemType === 'Kit' && invDetailRequired === 'F') {
+                                // this is a serialized kit (main) item
+                                log.debug('MDIMKOV', '... => [10] this is a serialized kit item (main line)');
 
                                 // MDIMKOV 11.10.2022: find the item name (it's held in a custom field on the item record), then search for it in the incoming (already reduced) JSON
                                 const itemId = recIf.getSublistValue({
@@ -670,7 +767,6 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 log.debug('MDIMKOV', 'itemName: ' + itemName);
 
                                 currentBlock = finalItemsData.find(x => x.name === itemName);
-                                log.debug('MDIMKOV', '... itemName: ' + itemName);
                                 log.debug('MDIMKOV', '... currentBlock1: ' + JSON.stringify(currentBlock));
 
                                 if (currentBlock) {
@@ -705,8 +801,9 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
                                 lineType = 'B'; // as the next line should be the first component line in the kit
 
-                            } else { // this is a component item in the kit item, we need to set the inventory details for it
-                                log.debug('MDIMKOV', '... this is a component line');
+                            } else if (itemType === 'InvtPart' && kitLevel && invDetailRequired === 'T') {
+                                // this is a component item in the kit item, we need to set the inventory details for it
+                                log.debug('MDIMKOV', '... => [20] this is a serialized kit item (component line)');
 
                                 const invDetail = recIf.getCurrentSublistSubrecord({
                                     sublistId: 'item',
@@ -769,6 +866,100 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                     // the next [children], i.e. SerialNo / BatchNo will be used
                                     currentBlock.children.splice(0, compQty);
                                 }
+
+
+                            } else if (itemType === 'InvtPart' && !kitLevel && invDetailRequired === 'T') {
+
+                                // this is a serialized stand-alone item
+                                log.debug('MDIMKOV', '... => [30] this is a serialized stand-alone item');
+
+
+                                // MDIMKOV 11.10.2022: find the item name (it's held in a custom field on the item record), then search for it in the incoming (already reduced) JSON
+                                const itemId = recIf.getSublistValue({
+                                    sublistId: 'item',
+                                    fieldId: 'item',
+                                    line: i
+                                });
+                                const itemName = _lib.getFieldValue('custitem_akt_ogl_3pl_item_sku', 'item', itemId);
+                                log.debug('MDIMKOV', 'itemName: ' + itemName);
+
+                                currentBlock = finalItemsData.find(x => x.name === itemName);
+                                log.debug('MDIMKOV', '... currentBlock1: ' + JSON.stringify(currentBlock));
+
+                                if (currentBlock) {
+
+                                    // MDIMKOV 11.10.2022: this will be the quantity supplied by the external JSON file
+                                    const quantityFromJSON = currentBlock.children.length;
+
+                                    // MDIMKOV 21.10.2022: this will be the quantity currently suggested by the Item Fulfillment
+                                    const quantityFromIF = recIf.getCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'quantity'
+                                    });
+
+                                    // MDIMKOV 21.10.2022: this will be the quantity to be finally set on the line
+                                    let quantity = 0;
+                                    if (!quantityFromIF) {
+                                        quantity = quantityFromJSON;
+                                    } else {
+                                        quantity = (quantityFromJSON < quantityFromIF) ? quantityFromJSON : quantityFromIF;
+                                    }
+                                    log.debug('MDIMKOV', '... quantityFromJSON: ' + quantityFromJSON);
+                                    log.debug('MDIMKOV', '... quantityFromIF: ' + quantityFromIF);
+                                    log.debug('MDIMKOV', '... quantity: ' + quantity);
+
+                                    recIf.setCurrentSublistValue({
+                                        sublistId: 'item',
+                                        fieldId: 'quantity',
+                                        value: quantity    // this would be the quantity of items you want to fulfill for this kit SKU
+                                    });
+
+                                    const invDetail = recIf.getCurrentSublistSubrecord({
+                                        sublistId: 'item',
+                                        fieldId: 'inventorydetail',
+                                        line: i,
+                                        isDynamic: true
+                                    });
+
+                                    for (let j = 0; j < quantity; j++) {
+                                        log.debug('MDIMKOV', '... ... now adding inventory assignment line with j=' + j);
+
+                                        invDetail.selectNewLine({
+                                            sublistId: 'inventoryassignment'
+                                        });
+
+                                        invDetail.setCurrentSublistValue({
+                                            sublistId: 'inventoryassignment',
+                                            fieldId: 'quantity',
+                                            value: 1    // always 1 in case of serial numbers -- control how many items will be fulfilled with the same lot number
+                                        });
+
+
+                                        // MDIMKOV 11.10.2022: set either the SerialNo
+                                        log.debug('MDIMKOV', '... ... component line');
+                                        invDetail.setCurrentSublistValue({
+                                            sublistId: 'inventoryassignment',
+                                            fieldId: 'issueinventorynumber',
+                                            value: _lib.getLotSerialNumIDs(currentBlock.children[j].SerialNo)
+                                        });
+
+                                        invDetail.commitLine({
+                                            sublistId: 'inventoryassignment'
+                                        });
+                                    }
+
+
+                                    // MDIMKOV 21.10.2022: now remove the [children] in the JSON that have been used so far; this way, on next iterations,
+                                    // the next [children], i.e. SerialNo will be used
+                                    currentBlock.children.splice(0, quantity);
+                                }
+
+
+                            } else if (itemType === 'InvtPart' && !kitLevel && invDetailRequired === 'F') {
+                                // this is a non-serialized stand-alone item
+                                log.debug('MDIMKOV', '... => [40] this is a non-serialized stand-alone item');
+
+
                             }
 
                             recIf.commitLine({
@@ -798,97 +989,129 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                             rec.setValue('custrecord_sotoif_solink', soId);
                         }
 
-                        // ========================= OGL / MINTSOFT [KIT ITEM WITH SERIAL NUMBERS] END ========================= //
+                        // ========================= OGL / MINTSOFT END ========================= //
 
 
-                        // ========================= OGL / MINTSOFT [STAND-ALONE ITEM WITH SERIAL NUMBERS] START ========================= //
+                    } else if (providerName === 'Fastlog' || providerName === 'CHG') {
+
+                        // ========================= FASTLOG / CHG [ANY ITEM WITH SERIAL NUMBERS] START ========================= //
 
 
-                        // ========================= OGL / MINTSOFT [STAND-ALONE ITEM WITH SERIAL NUMBERS] END ========================= //
+                        let soId = 0;
 
-                    } else if (providerName === 'Fastlog') {
+                        if (providerName === 'Fastlog') {
+                            soId = parseInt(rec.getValue('custrecord_sotoif_order_id'));    // Fastlog is directly sending the NetSuite order ID
+                        } else if (providerName === 'CHG') {
+                            // Chainglobal is sending the store front instead of the internal id => need to convert it
+                            soId = _lib.singleRecordSearch('transaction', ['custbody_nbs702_storefront_order', 'is', rec.getValue('custrecord_sotoif_order_id')], 'internalid');
+                        }
 
-                        // ========================= FASTLOG [KIT ITEM WITH SERIAL NUMBERS] START ========================= //
+
+                        log.debug('MDIMKOV', 'provider is: ' + providerName);
+                        log.debug('MDIMKOV', 'soId: ' + soId);
 
 
-                        const fastlogOrderId = parseInt(rec.getValue('custrecord_sotoif_order_id'));
-                        const soId = fastlogOrderId;
+                        // MDIMKOV 19.05.2023: get the tracking number(s)
+                        let trackingNumber = '';
 
-                        const trackingNumberArrayRaw = rec.getValue('custrecord_sotoif_tracking_number');
-                        const trackingNumberArray = _lib.jsonparse(trackingNumberArrayRaw);
+                        if (providerName === 'Fastlog') {
+                            const trackingNumberArrayRaw = rec.getValue('custrecord_sotoif_tracking_number');
+                            const trackingNumberArray = _lib.jsonparse(trackingNumberArrayRaw);
+                            log.debug('MDIMKOV', 'trackingNumberArray: ' + trackingNumberArray);
 
-                        const trackingNumber = arrayToString(trackingNumberArray); // Fastlog sends an array, so this function makes a string of its members
+                            trackingNumber = arrayToString(trackingNumberArray); // Fastlog sends an array, so this function makes a string of its members
+                        } else if (providerName === 'CHG') {
+                            trackingNumber = rec.getValue('custrecord_sotoif_tracking_number');
+                            log.debug('MDIMKOV', 'trackingNumber: ' + trackingNumber);
+                        }
+
+
                         const trackingUrlRaw = rec.getValue('custrecord_sotoif_tracking_url');
                         const trackingUrl = trackingUrlRaw.replaceAll(' ', '%20'); // remove empty spaces in URL
                         const invLocation = _lib.getFieldValue('location', 'salesorder', soId, null, 'value');
 
-                        log.audit('MDIMKOV', 'Integration Provider: ' + 'Fastlog');
+                        log.audit('MDIMKOV', 'Integration Provider: ' + providerName);
                         log.audit('MDIMKOV', 'NetSuite Sales Order ID -- soId: ' + soId);
-                        log.audit('MDIMKOV', 'Fastlog Order ID -- fastlogOrderId: ' + fastlogOrderId);
-                        log.debug('MDIMKOV', 'trackingNumberArray: ' + trackingNumberArray);
+                        log.audit('MDIMKOV', 'Fastlog / CHG Order ID -- soId: ' + soId);
 
 
                         // MDIMKOV 17.10.2022: get the data about items shipped, which was directly exposed as a JSON in the custom record type
                         let itemsJSON = rec.getValue('custrecord_sotoif_items_json');
                         log.debug('initial itemsJSON', itemsJSON);
-                        /* MDIMKOV 17.10.2022: Fastlog raw data expected
+                        /* MDIMKOV 17.10.2022: Fastlog /CHG raw data expected
                         {
-                            "OrderNumber": "24161",
-                            "TrackingNumber": "996014447000000081",
-                            "TrackingURL": "",
-                            "Message": "Testauftrag 10046515",
-                            "OrderItems": [
+                          "OrderNumber": "24163",
+                          "TrackingNumber": "996014447000000083",
+                          "TrackingURL": "",
+                          "Message": "Testauftrag 10046517",
+                          "OrderItems": [
                             {
-                                "SKU": "KITNS",
-                                "Quantity": 2,
-                                "bundles": [
+                              "SKU": "I1",
+                              "Quantity": 2,
+                              "SerialNumbers": [
+                                "21BA87192201000206",
+                                "21BA87192201000836"
+                              ]
+                            },
+                            {
+                              "SKU": "KITNS",
+                              "Quantity": 2,
+                              "bundles": [
+                                {
+                                  "bundleNo": "21D1974BE19F",
+                                  "items": [
                                     {
-                                        "bundleNo": "21D247595E75",
-                                        "items": [
-                                            {
-                                                "SKU": "G1",
-                                                "Quantity": 1,
-                                                "SerialNumbers": [
-                                                    "21D247595E75"
-                                                ]
-                                            },
-                                            {
-                                                "SKU": "I1",
-                                                "Quantity": 1,
-                                                "SerialNumbers": [
-                                                    "21BA88302203002373"
-                                                ]
-                                            }
-                                        ]
+                                      "SKU": "G1",
+                                      "Quantity": 1,
+                                      "SerialNumbers": [
+                                        "21659C4959A9"
+                                      ]
                                     },
                                     {
-                                        "bundleNo": "21DC6DFBB51A",
-                                        "items": [
-                                            {
-                                                "SKU": "G1",
-                                                "Quantity": 1,
-                                                "SerialNumbers": [
-                                                    "21DC6DFBB51A"
-                                                ]
-                                            },
-                                            {
-                                                "SKU": "I1",
-                                                "Quantity": 1,
-                                                "SerialNumbers": [
-                                                    "21BA88302203001708"
-                                                ]
-                                            }
-                                        ]
+                                      "SKU": "I1",
+                                      "Quantity": 1,
+                                      "SerialNumbers": [
+                                        "21BA87192201004029"
+                                      ]
                                     }
-                                ]
+                                  ]
+                                },
+                                {
+                                  "bundleNo": "218ED4AD9E88",
+                                  "items": [
+                                    {
+                                      "SKU": "G1",
+                                      "Quantity": 1,
+                                      "SerialNumbers": [
+                                        "2154B2ABDCA0"
+                                      ]
+                                    },
+                                    {
+                                      "SKU": "I1",
+                                      "Quantity": 1,
+                                      "SerialNumbers": [
+                                        "21BA87192201000179"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "SKU": "G1",
+                              "Quantity": 2,
+                              "SerialNumbers": [
+                                "21CFD3F33B78",
+                                "21A2DC0642A8"
+                              ]
                             }
-                        ]
+                          ]
                         }*/
 
                         itemsJSON.substring(1, itemsJSON.length - 1);
                         let nonSummarizedItemsJSON = itemsJSON.replaceAll(/&quot;/g, '\"');
                         nonSummarizedItemsJSON = JSON.parse(nonSummarizedItemsJSON);
-                        /* MDIMKOV 17.10.2022: Fastlog itemsJSON expected:
+                        /* MDIMKOV 17.10.2022: Fastlog /CHG itemsJSON expected:
                         [
                             {
                                 "SKU": "I1",
@@ -953,9 +1176,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         ]*/
 
 
-                        // MDIMKOV 17.03.2023: summarize the bundles, so they can be processed in bulk
-                        const finalItemsJSON = summarizeBundlesForFlg(nonSummarizedItemsJSON);
-                        /* after the previous JSON is processed, here's the output expected:
+                        // MDIMKOV 17.03.2023: summarize the bundles, so they can be processed in bulk (for Fastlog); For ChainGlobal / Hecny, don't summarize but
+                        // just change the structure respectively
+                        let finalItemsJSON = nonSummarizedItemsJSON;
+                        if (providerName === 'Fastlog') {
+                            finalItemsJSON = summarizeBundlesForFlg(nonSummarizedItemsJSON);
+                        } else if (providerName === 'CHG') {
+                            finalItemsJSON = summarizeBundlesForChg(nonSummarizedItemsJSON);
+                        }
+                        /* FOR FASTLOG: after the previous JSON is processed, here's the output expected (FOR FASTLOG! -- see below for Chain Global / Hecny):
                         [
                             {
                                 "SKU": "I1",
@@ -1001,6 +1230,41 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         ]*/
 
 
+                        /* Chain Global / Hecny: after the previous JSON is processed, here's the output expected (Chain Global / Hecny!!!):
+                        [{
+                            "SKU": "KITNS",
+                            "Quantity": 1,
+                            "bundles": [{
+                                "bundleNo": "",
+                                "items": [{
+                                    "SKU": "BRACELET",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["21D9EEE03A51"]
+                                }, {
+                                    "SKU": "INIT",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["21BA33982303006993"]
+                                }]
+                            }]
+                        }, {
+                            "SKU": "KITNS",
+                            "Quantity": 1,
+                            "bundles": [{
+                                "bundleNo": "",
+                                "items": [{
+                                    "SKU": "BRACELET",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["2171E2E6DBBA"]
+                                }, {
+                                    "SKU": "INIT",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["21BA33982303007066"]
+                                }]
+                            }]
+                        }]
+                         */
+
+
                         // MDIMKOV 17.10.2022: if no information about the items has been received, throw an error message
                         if (finalItemsJSON.length === 0) {
                             throw new Error('Could not get information about the items dispatched. The JSON returned is empty. Check the [getFastlogOrderItems] function');
@@ -1014,6 +1278,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         // transform it without it and, if needed, catch the error and try to transform it with the parameter
                         let recIf = null;
                         try {
+                            log.debug('MDIMKOV', '... try WITHOUT inventory location');
                             recIf = record.transform({
                                 fromType: record.Type.SALES_ORDER,
                                 fromId: soId,
@@ -1021,6 +1286,8 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 isDynamic: true
                             });
                         } catch (e) {
+                            log.debug('MDIMKOV', '... try WITH inventory location (invLocation = ' + invLocation + '), ' +
+                                'because without inventory location the following error was raised: ' + e.message);
                             recIf = record.transform({
                                 fromType: record.Type.SALES_ORDER,
                                 fromId: soId,
@@ -1031,6 +1298,8 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 }
                             });
                         }
+
+                        log.debug('MDIMKOV', 'MDIMKOV: >>> 10');
 
                         const lineCount = recIf.getLineCount({
                             sublistId: 'item'
@@ -1082,7 +1351,14 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 fieldId: 'item',
                                 line: i
                             });
-                            const itemName = _lib.getFieldValue('custitem_akt_flg_3pl_item_sku', 'item', itemId);
+
+                            let itemName = null;
+
+                            if (providerName === 'Fastlog') {
+                                itemName = _lib.getFieldValue('custitem_akt_flg_3pl_item_sku', 'item', itemId);
+                            } else if (providerName === 'CHG') {
+                                itemName = _lib.getFieldValue('custitem_akt_chg_3pl_item_sku', 'item', itemId);
+                            }
                             log.debug('MDIMKOV', '... itemName: ' + itemName);
 
                             if (invDetailRequired === 'F' && itemType === 'Kit') {
@@ -1136,11 +1412,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                         sublistId: 'inventoryassignment'
                                     });
 
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 10');
+
                                     invDetail.setCurrentSublistValue({
                                         sublistId: 'inventoryassignment',
                                         fieldId: 'quantity',
                                         value: 1    // always 1 in case of serial numbers -- control how many items will be fulfilled with the same lot number
                                     });
+
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 20');
 
                                     // MDIMKOV 17.10.2022: set the serial numbers
                                     invDetail.setCurrentSublistValue({
@@ -1149,9 +1429,13 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                         value: element
                                     });
 
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 30');
+
                                     invDetail.commitLine({
                                         sublistId: 'inventoryassignment'
                                     });
+
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 40');
 
                                 });
 
@@ -1199,7 +1483,6 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 log.debug('MDIMKOV', '... this a stand-alone inventory item');
 
 
-                                // currentBlock = findFastlogCurrentBlock(itemsJSON, itemName);
                                 currentBlock = finalItemsJSON.find(x => x.SKU === itemName);
                                 log.debug('MDIMKOV', '... currentBlock: ' + JSON.stringify(currentBlock));
 
@@ -1224,7 +1507,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
                                 for (let j = 0; j < compQty; j++) {
 
-                                    const serialNumberToAdd = currentBlock.SerialNumbers[j];
+                                    let serialNumberToAdd = [];
+
+                                    if (currentBlock.SerialNumbers) {
+                                        // MDIMKOV 11.09.2023: this is in case of bundles
+                                        serialNumberToAdd = currentBlock.SerialNumbers[j];
+                                    } else {
+                                        // MDIMKOV 11.09.2023: this is in case of stand-alone items
+                                        serialNumberToAdd = currentBlock.bundles[j].items.SerialNumbers[0];
+                                    }
                                     const serialNumberIdToAdd = _lib.getLotSerialNumIDs(serialNumberToAdd);
 
                                     log.debug('MDIMKOV', '... ... now adding inventory assignment line with j=' + j);
@@ -1258,8 +1549,6 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                         sublistId: 'inventoryassignment'
                                     });
                                 }
-
-
                             }
 
                             recIf.commitLine({
@@ -1291,7 +1580,8 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         }
 
 
-                        // ========================= FASTLOG [KIT ITEM WITH SERIAL NUMBERS] END ========================= //
+                        // ========================= FASTLOG / CHG [ANY ITEM WITH SERIAL NUMBERS] END ========================= //
+
 
                     } else if (providerName === 'Kinesis') {
 
@@ -1371,6 +1661,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         // throw new Error('Stop Execution');
 
                         // ========================= KINESIS [KIT ITEM WITHOUT SERIAL NUMBERS] END ========================= //
+
 
                     }
 

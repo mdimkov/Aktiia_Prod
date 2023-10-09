@@ -208,27 +208,32 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
         // MDIMKOV 09.10.2022: this function gets Mintsoft API Key, as there is no way to get it from Celigo
         function getMintsoftApiKey() {
-            let apiKey = '';
 
-            // MDIMKOV 09.10.2022: get the username and password to connect from the script parameters
-            const mintsoftUsername = _lib.getScriptParameter('custscript_akt_mintsoft_username');
-            const mintsoftPassword = _lib.getScriptParameter('custscript_akt_mintsoft_password');
+            // MDIMKOV 09.10.2023: after the switch to a static API key, this function is obsolette; just return the static API key
+            return 'c9db1d53-dd8e-42e7-8301-cf205005d915';
 
-            const headerObj = {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            };
 
-            const response = https.get({
-                url: 'https://api.mintsoft.co.uk/api/Auth?UserName=AKTIIA.TEST&Password=Test20220830',
-                headers: headerObj
-            });
-
-            // MDIMKOV 10.10.2022: get the API key and remove the double quotes around it
-            apiKey = response.body;
-            apiKey = apiKey.replace(/["']/g, "");
-
-            return apiKey;
+            // let apiKey = '';
+            //
+            // // MDIMKOV 09.10.2022: get the username and password to connect from the script parameters
+            // const mintsoftUsername = _lib.getScriptParameter('custscript_akt_mintsoft_username');
+            // const mintsoftPassword = _lib.getScriptParameter('custscript_akt_mintsoft_password');
+            //
+            // const headerObj = {
+            //     'Accept': 'application/json',
+            //     'Content-Type': 'application/json'
+            // };
+            //
+            // const response = https.get({
+            //     url: 'https://api.mintsoft.co.uk/api/Auth?UserName=AKTIIA.TEST&Password=Test20220830',
+            //     headers: headerObj
+            // });
+            //
+            // // MDIMKOV 10.10.2022: get the API key and remove the double quotes around it
+            // apiKey = response.body;
+            // apiKey = apiKey.replace(/["']/g, "");
+            //
+            // return apiKey;
         }
 
 
@@ -293,7 +298,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
 
         // MDIMKOV 17.03.2023: this function summarizes bundles for Fastlog, so that governance usage can be optimized; look in the code itself for samples
-        function summarizeBundlesForFlgChg(inputArray) {
+        function summarizeBundlesForFlg(inputArray) {
             const resultArray = [];
 
             for (const input of inputArray) {
@@ -321,7 +326,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 const newItem = {
                                     SKU: item.SKU,
                                     Quantity: item.Quantity,
-                                    SerialNumbers: [...item.SerialNumbers],
+                                    SerialNumbers: item.SerialNumbers ? [...item.SerialNumbers] : [],
                                 };
                                 itemMap.set(item.SKU, newItem);
                                 summary.bundles[0].items.push(newItem);
@@ -336,6 +341,50 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
             }
 
             return resultArray;
+        }
+
+
+        // MDIMKOV 17.03.2023: this function changes a bit the structure for bundles for Chain Global / Hecny
+        function summarizeBundlesForChg(inputArray) {
+            const outputJSON = [];
+
+            inputArray.forEach((item) => {
+                item.Quantity = 1;
+
+                // MDIMKOV 11.09.2023: for bundles
+                if (item.bundles) {
+                    item.bundles.forEach((bundle) => {
+                        const newBundle = {
+                            bundleNo: "",
+                            items: bundle.items
+                        };
+
+                        const newItem = {
+                            SKU: item.SKU,
+                            Quantity: 1,
+                            bundles: [newBundle]
+                        };
+
+                        outputJSON.push(newItem);
+                    });
+                } else {
+                    // MDIMKOV 11.09.2023: for stand-alone items (or single components)
+                    const newBundle = {
+                        bundleNo: "",
+                        items: item
+                    };
+
+                    const newItem = {
+                        SKU: item.SKU,
+                        Quantity: 1,
+                        bundles: [newBundle]
+                    };
+
+                    outputJSON.push(newItem);
+                }
+            });
+
+            return outputJSON;
         }
 
 
@@ -428,21 +477,6 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
 
                         log.debug('MDIMKOV', 'initial itemsJSON (before reduce): ' + JSON.stringify(itemsJSON));
-
-
-                        // MDIMKOV 14.10.2022: check if any of the main items in the kit (main level) was not scanned;
-                        // this would result in "Barcode" property being empty; throw an error message in this case
-                        let isBarcodeEmpty = false;
-                        itemsJSON.forEach(function (element) {
-                            if (element.Barcode === '') {
-                                isBarcodeEmpty = true;
-                            }
-                        });
-                        if (isBarcodeEmpty) {
-                            throw new Error('For at least one of the items the barcode is missing. In case this is a kit item,' +
-                                'You need to ask OGL to scan the respective main kit item and not only the sub-items; ' +
-                                'Check the [itemsJSON (before reduce)] log entry in NetSuite for more details.');
-                        }
 
 
                         // MDIMKOV 14.10.2022: if no information about the items has been received, throw an error message
@@ -953,8 +987,21 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         // ========================= FASTLOG / CHG [ANY ITEM WITH SERIAL NUMBERS] START ========================= //
 
 
-                        const flgChgOrderId = parseInt(rec.getValue('custrecord_sotoif_order_id'));
-                        const soId = flgChgOrderId;
+                        let soId = 0;
+
+                        if (providerName === 'Fastlog') {
+                            soId = parseInt(rec.getValue('custrecord_sotoif_order_id'));    // Fastlog is directly sending the NetSuite internal ID
+                        } else if (providerName === 'CHG') {
+                            // Chainglobal is sending the store front instead of the internal id => need to convert it
+                            soId = _lib.singleRecordSearch('transaction', ['custbody_nbs702_storefront_order', 'is',
+                                rec.getValue('custrecord_sotoif_order_id').trim()], 'internalid');
+
+                            // MDIMKOV 18.09.2023: in some cases the order is identified by the order ID instead of the store front order number
+                            if (!soId) {
+                                soId = _lib.docNumToTransIntId(rec.getValue('custrecord_sotoif_order_id'));
+                            }
+                        }
+
 
                         log.debug('MDIMKOV', 'provider is: ' + providerName);
                         log.debug('MDIMKOV', 'soId: ' + soId);
@@ -981,7 +1028,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
                         log.audit('MDIMKOV', 'Integration Provider: ' + providerName);
                         log.audit('MDIMKOV', 'NetSuite Sales Order ID -- soId: ' + soId);
-                        log.audit('MDIMKOV', 'Fastlog / CHG Order ID -- flgChgOrderId: ' + flgChgOrderId);
+                        log.audit('MDIMKOV', 'Fastlog / CHG Order ID -- soId: ' + soId);
 
 
                         // MDIMKOV 17.10.2022: get the data about items shipped, which was directly exposed as a JSON in the custom record type
@@ -1125,9 +1172,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         ]*/
 
 
-                        // MDIMKOV 17.03.2023: summarize the bundles, so they can be processed in bulk
-                        const finalItemsJSON = summarizeBundlesForFlgChg(nonSummarizedItemsJSON);
-                        /* after the previous JSON is processed, here's the output expected:
+                        // MDIMKOV 17.03.2023: summarize the bundles, so they can be processed in bulk (for Fastlog); For ChainGlobal / Hecny, don't summarize but
+                        // just change the structure respectively
+                        let finalItemsJSON = nonSummarizedItemsJSON;
+                        if (providerName === 'Fastlog') {
+                            finalItemsJSON = summarizeBundlesForFlg(nonSummarizedItemsJSON);
+                        } else if (providerName === 'CHG') {
+                            finalItemsJSON = summarizeBundlesForChg(nonSummarizedItemsJSON);
+                        }
+                        /* FOR FASTLOG: after the previous JSON is processed, here's the output expected (FOR FASTLOG! -- see below for Chain Global / Hecny):
                         [
                             {
                                 "SKU": "I1",
@@ -1173,6 +1226,41 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         ]*/
 
 
+                        /* Chain Global / Hecny: after the previous JSON is processed, here's the output expected (Chain Global / Hecny!!!):
+                        [{
+                            "SKU": "KITNS",
+                            "Quantity": 1,
+                            "bundles": [{
+                                "bundleNo": "",
+                                "items": [{
+                                    "SKU": "BRACELET",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["21D9EEE03A51"]
+                                }, {
+                                    "SKU": "INIT",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["21BA33982303006993"]
+                                }]
+                            }]
+                        }, {
+                            "SKU": "KITNS",
+                            "Quantity": 1,
+                            "bundles": [{
+                                "bundleNo": "",
+                                "items": [{
+                                    "SKU": "BRACELET",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["2171E2E6DBBA"]
+                                }, {
+                                    "SKU": "INIT",
+                                    "Quantity": 1,
+                                    "SerialNumbers": ["21BA33982303007066"]
+                                }]
+                            }]
+                        }]
+                         */
+
+
                         // MDIMKOV 17.10.2022: if no information about the items has been received, throw an error message
                         if (finalItemsJSON.length === 0) {
                             throw new Error('Could not get information about the items dispatched. The JSON returned is empty. Check the [getFastlogOrderItems] function');
@@ -1186,6 +1274,7 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                         // transform it without it and, if needed, catch the error and try to transform it with the parameter
                         let recIf = null;
                         try {
+                            log.debug('MDIMKOV', '... try WITHOUT inventory location');
                             recIf = record.transform({
                                 fromType: record.Type.SALES_ORDER,
                                 fromId: soId,
@@ -1193,6 +1282,8 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 isDynamic: true
                             });
                         } catch (e) {
+                            log.debug('MDIMKOV', '... try WITH inventory location (invLocation = ' + invLocation + '), ' +
+                                'because without inventory location the following error was raised: ' + e.message);
                             recIf = record.transform({
                                 fromType: record.Type.SALES_ORDER,
                                 fromId: soId,
@@ -1203,6 +1294,8 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                 }
                             });
                         }
+
+                        log.debug('MDIMKOV', 'MDIMKOV: >>> 10');
 
                         const lineCount = recIf.getLineCount({
                             sublistId: 'item'
@@ -1315,11 +1408,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                         sublistId: 'inventoryassignment'
                                     });
 
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 10');
+
                                     invDetail.setCurrentSublistValue({
                                         sublistId: 'inventoryassignment',
                                         fieldId: 'quantity',
                                         value: 1    // always 1 in case of serial numbers -- control how many items will be fulfilled with the same lot number
                                     });
+
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 20');
 
                                     // MDIMKOV 17.10.2022: set the serial numbers
                                     invDetail.setCurrentSublistValue({
@@ -1328,9 +1425,13 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                         value: element
                                     });
 
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 30');
+
                                     invDetail.commitLine({
                                         sublistId: 'inventoryassignment'
                                     });
+
+                                    log.debug('MDIMKOV', 'MDIMKOV: >>> 40');
 
                                 });
 
@@ -1402,7 +1503,15 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
                                 for (let j = 0; j < compQty; j++) {
 
-                                    const serialNumberToAdd = currentBlock.SerialNumbers[j];
+                                    let serialNumberToAdd = [];
+
+                                    if (currentBlock.SerialNumbers) {
+                                        // MDIMKOV 11.09.2023: this is in case of bundles
+                                        serialNumberToAdd = currentBlock.SerialNumbers[j];
+                                    } else {
+                                        // MDIMKOV 11.09.2023: this is in case of stand-alone items
+                                        serialNumberToAdd = currentBlock.bundles[j].items.SerialNumbers[0];
+                                    }
                                     const serialNumberIdToAdd = _lib.getLotSerialNumIDs(serialNumberToAdd);
 
                                     log.debug('MDIMKOV', '... ... now adding inventory assignment line with j=' + j);
@@ -1436,8 +1545,6 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
                                         sublistId: 'inventoryassignment'
                                     });
                                 }
-
-
                             }
 
                             recIf.commitLine({

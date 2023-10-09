@@ -4825,6 +4825,166 @@ define(['N/record', 'N/search', 'N/runtime', 'N/url', 'N/currency', 'N/format'],
         }
 
 
+        // MDIMKOV 06.07.2023: this local function returns the bank info (IBAN etc.) based on the setup screen
+        function locGetBankInfo(formId, subsidiaryId, currencyId, countryId) {
+
+            // MDIMKOV 06.07.2023: initialize variables with default values
+            let returnObj = {
+                "iban": "CH820029029013042360G",
+                "bic": "UBSWCHZH80A",
+                "vat": "CHE-149.232.500",
+                "bankname": "UBS Switzerland AG"
+            };
+            let isContinue = true;
+
+
+            // MDIMKOV 06.07.2023: log the input variable values
+            log.debug('MDIMKOV', 'formId: ' + formId + '; subsidiaryId: ' + subsidiaryId + '; currencyId: ' + currencyId + '; countryId: ' + countryId);
+
+
+            // MDIMKOV 06.07.2023: search the setup screen
+            const setupScreenSearchObj = search.create({
+                type: 'customrecord_akt_auto_email_inv',
+                filters:
+                    [
+                        ['custrecord_akt_aeis_inv_form', 'anyof', formId],
+                        'AND',
+                        ['custrecord_akt_aeis_subsidiary', 'anyof', subsidiaryId],
+                        'AND',
+                        ['custrecord_akt_aeis_currency', currencyId ? 'anyof' : 'noneof', currencyId ? currencyId : '@none@']
+                    ],
+                columns:
+                    [
+                        'custrecord_akt_aeis_country',
+                        'custrecord_akt_aeis_iban',
+                        'custrecord_akt_aeis_bic',
+                        'custrecord_akt_aeis_vatno',
+                        'custrecord_akt_aeis_bankname'
+                    ]
+            });
+            logSearchResultCount(setupScreenSearchObj, null, 'number of setup records found ')
+            let index = 0;
+            setupScreenSearchObj.run().each(function (result) {
+                const countryArray = result.getValue(result.columns[0]);
+                const iban = result.getValue(result.columns[1]);
+                const bic = result.getValue(result.columns[2]);
+                const vat = result.getValue(result.columns[3]);
+                const bankname = result.getValue(result.columns[4]);
+
+
+                // MDIMKOV 06.07.2023: since one setup record has multiple country codes, check if respective country exists
+                if (countryArray.includes(countryId)) {
+                    log.debug('MDIMKOV', 'country ID was found on iteration number ' + index + '; record ID found is: ' + result.id);
+
+                    isContinue = false;
+                }
+
+                returnObj = {"iban": iban, "bic": bic, "vat": vat, "bankname": bankname};
+
+                index += 1;
+                return isContinue;
+            });
+            return returnObj;
+        }
+
+
+        // MDIMKOV 06.07.2023: this local function returns the country ID based
+        function locGetCountryIdByCode(countryCode) {
+
+            // initialize & pre-fill
+            const countryDict = {
+                'AT': 6,
+                'CA': 12,
+                'FR': 4,
+                'DE': 8,
+                'IE': 7,
+                'IT': 5,
+                'LU': 10,
+                'OTHER': 9,
+                'ES': 11,
+                'CH': 3,
+                'GB': 2,
+                'US': 1
+            };
+
+
+            // call a value
+            return countryDict[countryCode];
+        }
+
+
+        /* =============== Find the transaction NetSuite ID based on a given document number =============== */
+
+        /*
+     * MDIMKOV 18.09.2023: this function returns the internal id on a transaction by passing the document number (tranid)
+     *
+     * RETURNS: integer (the NetSuite internal ID)
+     *
+     * INPUT: string (the transaction tranid)
+     *
+     * USAGE: docNumToTransIntId(SO843292); //=> 23564
+     *
+     * */
+
+        function docNumToTransIntId(docNumber) {
+
+            return singleRecordSearch('transaction', [['numbertext', 'is', docNumber], 'AND', ['mainline', 'is', 'T']], 'internalid');
+
+        }
+
+
+        /* =============== Prevent entering a record that has a value in a certain field that is already used on another record =============== */
+
+        /*
+        * MDIMKOV 25.09.2023: this function would raise an error in a client script (mainly on [save]) if in a given field the user enters a value,
+        *       which is already used in the same field in another record (e.g., suitable for transaction ID etc.)
+        *
+        * RETURNS:      boolean        if [true] is returned, use it to raise message, as shown in the USAGE below
+        *
+        * INPUT:        recordType     the record type, such as 'salesorder' or 'employee'
+        *               currentValue   the value that is currently being added into the field (could be any type)
+        *               fieldId        the fieldId for which this is checked, e.g., custbody_my_field
+        *               internalId     the internal id of the current record (if existing)
+        *
+        * NOTE:         The internalId parameter is supplied, so that it is being excluded from the saved search, to avoid counting the current record
+        *                       if this is a new record, the internal id doesn't exist anyways
+        *                       if the user is editing and existing record, supplying the internal id guarantees that the current record is excluded from the saved search
+        *
+        * USAGE:        1. Import the ['N/ui/dialog'] module
+        *
+        *               2. Potentially, script the [saveRecord] entry point on a client script
+        *
+        *               3. Use the following:
+        *
+        *               if (preventDuplicateValue('salesorder', 43425, 'memo')) {
+        * 	                    dialog.alert({
+        *                         title: 'Duplicate Detected',
+        *                         message: 'This store front number was already used, please use a different one.'
+        *                       });
+        *
+        *    		            return false;
+        *               }
+        *
+        * */
+
+        function preventDuplicateValue(recordType, currentValue, fieldId, internalId) {
+
+            let returnValue = false;
+
+            foundRecId = singleRecordSearch(recordType, [
+                [fieldId, 'is', currentValue],
+                'AND',
+                ['internalid', 'noneof', internalId ? internalId : 0]
+            ], 'internalid');
+
+            if (foundRecId) {
+                returnValue = true;
+            }
+
+            return returnValue;
+        }
+
+
         return {
             loadItemRec: loadItemRec,
             getPostingPeriod: getPostingPeriod,
@@ -4891,6 +5051,10 @@ define(['N/record', 'N/search', 'N/runtime', 'N/url', 'N/currency', 'N/format'],
             roundAmount: roundAmount,
             getLotSerialNumIDs: getLotSerialNumIDs,
             jsonparse: jsonparse,
-            testJsonString: testJsonString
+            testJsonString: testJsonString,
+            locGetBankInfo: locGetBankInfo,
+            locGetCountryIdByCode: locGetCountryIdByCode,
+            docNumToTransIntId: docNumToTransIntId,
+            preventDuplicateValue: preventDuplicateValue
         }
     });

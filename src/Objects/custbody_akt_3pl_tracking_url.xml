@@ -20,7 +20,7 @@
   <bodyprintpackingslip>F</bodyprintpackingslip>
   <bodyprintstatement>F</bodyprintstatement>
   <bodypurchase>F</bodypurchase>
-  <bodysale>F</bodysale>
+  <bodysale>T</bodysale>
   <bodytransferorder>F</bodytransferorder>
   <bodyvendorpayment>F</bodyvendorpayment>
   <checkspelling>F</checkspelling>

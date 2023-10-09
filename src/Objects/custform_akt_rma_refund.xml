@@ -78,7 +78,7 @@
           <label>Memo</label>
           <visible>T</visible>
           <mandatory>F</mandatory>
-          <displayType>INLINETEXT</displayType>
+          <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
@@ -2156,6 +2156,52 @@
               <columnBreak>F</columnBreak>
               <sameRowAsPrevious>F</sameRowAsPrevious>
             </field>
+            <field>
+              <id>[scriptid=custbody_md_switch_currency]</id>
+              <label>Switch Currency</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_akt_manual_form_selection]</id>
+              <label>Manual Form Selection</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
+            <field>
+              <id>[appid=com.cobase.integration, scriptid=custbody_2663_cob_e2e_reference]</id>
+              <label>E2E reference</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[appid=com.cobase.integration, scriptid=custbody_2663_cob_payreference]</id>
+              <label>Structured remittance info</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_zc_3wm_translations]</id>
+              <label>3-Way Matching Modal Translations</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
           </fields>
         </defaultFieldGroup>
       </fieldGroups>
@@ -2226,6 +2272,15 @@
               <id>[scriptid=custbody_10184_customer_entity_bank]</id>
               <label>Entity Bank (Customer)</label>
               <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_15889_cust_refund_entity_bank]</id>
+              <label>Entity Bank (Customer Credit)</label>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2931,6 +2986,25 @@
       </fieldGroups>
       <subItems/>
     </tab>
+    <tab>
+      <id>[scriptid=custtab_zc_transaction]</id>
+      <label>ZoneCapture</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems>
+        <subTab>
+          <id>[scriptid=custtab_zc_transaction_3wm]</id>
+          <label>3-Way Matching</label>
+          <visible>T</visible>
+          <fieldGroups>
+            <defaultFieldGroup/>
+          </fieldGroups>
+          <subLists/>
+        </subTab>
+      </subItems>
+    </tab>
   </tabs>
   <actionbar>
     <buttons>
@@ -3131,6 +3205,10 @@
     </role>
     <role>
       <id>[scriptid=customrole1002]</id>
+      <preferred>F</preferred>
+    </role>
+    <role>
+      <id>WMS_LIMITED_ACCESS</id>
       <preferred>F</preferred>
     </role>
   </roles>

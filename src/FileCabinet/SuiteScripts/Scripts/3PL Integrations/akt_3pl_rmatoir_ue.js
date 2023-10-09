@@ -737,6 +737,94 @@ define(['N/record', 'N/search', 'N/https', 'SuiteScripts/_Libraries/_lib'],
 
                         // ========================= KINESIS END ========================= //
 
+                    } else if (providerName === 'CHG') {
+
+                        // ========================= CHAINGLOBAL START ========================= //
+
+                        const chgReturnId = rec.getValue('custrecord_rmatoir_return_id');
+                        log.debug('MDIMKOV', 'CHG Return ID -- chgReturnId: ' + chgReturnId);
+
+
+                        // MDIMKOV 24.03.2023: find the [return authorization] in NetSuite, to start converting it
+                        const raId = findReturnBy3PlId(chgReturnId);
+                        log.debug('MDIMKOV', 'NetSuite Return Authorization internal id: ' + raId);
+
+
+                        // MDIMKOV 24.03.2023: if the NetSuite [return authorization] is not found, raise a friendly message
+                        if (!raId) {
+                            throw new Error('Could not find a NetSuite Return Authorization for CHG returnId ' + chgReturnId);
+                        }
+
+
+                        // MDIMKOV 24.03.2023: stamp the NetSuite [return authorization] internal id into the custom record type:
+                        rec.setValue('custrecord_rmatoir_rmalink', raId);
+
+
+                        // MDIMKOV 24.03.2023: get the information about items to be processed
+                        let itemsJSON = rec.getValue('custrecord_rmatoir_items_json');
+
+
+                        // MDIMKOV 21.11.2022: convert the string into valid JSON, by replacing all '&quote;' with '"'
+                        itemsJSON = _lib.jsonparse(itemsJSON);
+                        log.debug('MDIMKOV', 'itemsJSON to start with: ' + JSON.stringify(itemsJSON));
+
+
+                        // MDIMKOV 24.03.2023: start transforming the Return Authorization into an item receipt
+                        log.debug('MDIMKOV', 'Proceed with transforming the Return Authorization into an item receipt');
+
+                        const recIr = record.transform({
+                            fromType: record.Type.RETURN_AUTHORIZATION,
+                            fromId: raId,
+                            toType: record.Type.ITEM_RECEIPT,
+                            isDynamic: true,
+                        });
+
+
+                        // MDIMKOV 05.06.2023: copy all field values from the fields in the [Returns and Refunds] subtab to the item receipt
+                        const recRA = record.load({
+                            type: record.Type.RETURN_AUTHORIZATION,
+                            id: raId
+                        });
+
+                        const return_type = recRA.getValue('custbody_akt_return_type');
+                        const repl_comments = recRA.getValue('custbody_akt_repl_comments');
+                        const refund_type = recRA.getValue('custbody_akt_refund_type');
+                        const refund_amount = recRA.getValue('custbody_akt_refund_amount');
+                        const refund_reason = recRA.getValue('custbody_akt_refund_reason');
+                        const hq_inspection = recRA.getValue('custbody_akt_hq_inspection');
+                        const return_comment = recRA.getValue('custbody_akt_3pl_return_comment');
+                        const return_to_akt = recRA.getValue('custbody_akt_return_to_akt');
+
+                        recIr.setValue('custbody_akt_return_type', return_type);
+                        recIr.setValue('custbody_akt_repl_comments', repl_comments);
+                        recIr.setValue('custbody_akt_refund_type', refund_type);
+                        recIr.setValue('custbody_akt_refund_amount', refund_amount);
+                        recIr.setValue('custbody_akt_refund_reason', refund_reason);
+                        recIr.setValue('custbody_akt_hq_inspection', hq_inspection);
+                        recIr.setValue('custbody_akt_3pl_return_comment', return_comment);
+                        recIr.setValue('custbody_akt_return_to_akt', return_to_akt);
+
+                        // MDIMKOV 24.03.2023: directly save the transormed record
+                        recIr.save();
+
+                        const ifId = recIr.save();
+
+                        if (ifId) {
+                            // MDIMKOV 29.03.2023: log the newly-created item receipt
+                            log.audit('MDIMKOV', '');
+                            log.audit('MDIMKOV', 'created item receipt with id=' + ifId);
+
+                            // MDIMKOV 29.03.2023: set the [Fulfilled by 3PL] checkbox on the Return Authorization
+                            _lib.setFieldValue('custbody_akt_3pl_return_complete', 'returnauthorization', raId, true, false, false);
+
+                            // MDIMKOV 29.03.2023: add the item receipt and Return Authorization link to the staging area (custom) record type
+                            rec.setValue('custrecord_rmatoir_itemfulf', ifId);
+                            rec.setValue('custrecord_rmatoir_rmalink', raId);
+                        }
+
+
+                        // ========================= CHAINGLOBAL END ========================= //
+
                     }
 
                 }

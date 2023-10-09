@@ -9,7 +9,7 @@
   <name>AKT Integr RMA tо IR</name>
   <notifyadmins>F</notifyadmins>
   <notifyemails></notifyemails>
-  <notifyowner>T</notifyowner>
+  <notifyowner>F</notifyowner>
   <notifyuser>F</notifyuser>
   <scriptfile>[/SuiteScripts/Scripts/3PL Integrations/akt_3pl_rmatoir_ue.js]</scriptfile>
   <scriptdeployments>

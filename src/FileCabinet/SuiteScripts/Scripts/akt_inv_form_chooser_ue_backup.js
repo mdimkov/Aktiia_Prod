@@ -6,11 +6,11 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
     /**
      * @param{record} record
      * @param{search} search
-     * @param{_lib} _lib
+     * @param{_lib} _libаааа
      */
     (record, search, _lib) => {
 
-        /** MDIMKOV 01.11.2022: this UE script, deployed on [invoice], [quote], [sales order], firing on [afterSubmit], does the following:
+        /** MDIMKOV 01.11.2022: this UE script, deployed on [invoice], [quote], firing on [afterSubmit], does the following:
          *  - for quote, just writes the right item name on the line in the [] field and sets the discount name
          *  - evaluates information from several invoice/SO fields
          *  - changes the form used on the invoice/SO depending on these fields, to match the respective language
@@ -99,7 +99,7 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
          * @param {string} context.type - Trigger type; use values from the context.UserEventType enum
          * @since 2015.2
          */
-        const afterSubmit = (context) => { // ##
+        const afterSubmit = (context) => {
             try {
                 log.audit('MDIMKOV', '');
                 log.audit('MDIMKOV', '--- SCRIPT START ---');
@@ -114,15 +114,6 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
                     isDynamic: true
                 });
 
-
-                // MDIMKOV 31.07.2023: check if the [Manual Form Selection] field in the [Custom] subtab is checked; if it is, exit the script
-                const isManualFormSelection = rec.getValue('custbody_akt_manual_form_selection');
-                if (isManualFormSelection) {
-                    log.debug('MDIMKOV', 'the [Manual Form Selection] field in the [Custom] subtab is checked => exit the script...');
-                    return;
-                }
-
-
                 if (type === 'invoice' || type === 'salesorder') { // only when type is invoice/SO; ignore for estimates (quotes)
 
                     log.debug('MDIMKOV', 'initialize variables...');
@@ -135,17 +126,10 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
 
                     const billCountry = invFields.billcountry[0].value;
                     const shipCountry = invFields.shipcountry[0].value;
-                    const billCountryId = _lib.locGetCountryIdByCode(billCountry);
-                    const shipCountryId = _lib.locGetCountryIdByCode(shipCountry);
-                    const currencyId = rec.getValue('currency');
-                    const subsidiaryId = rec.getValue('subsidiary');
 
                     const customerName = rec.getText('entity');
                     const customerId = rec.getValue('entity');
-                    let templateType = 'B2B';
-                    if (customerName.toLowerCase().includes('woocommerce') || customerName.toLowerCase().includes('amazon')) {
-                        templateType = 'B2C';
-                    }
+                    const templateType = customerName.toLowerCase().includes('woocommerce') ? 'B2C' : 'B2B';
                     log.debug('MDIMKOV', '... billCountry: ' + JSON.stringify(billCountry));
                     log.debug('MDIMKOV', '... shipCountry: ' + JSON.stringify(shipCountry));
                     log.debug('MDIMKOV', '... customerName: ' + customerName);
@@ -163,11 +147,10 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
                     log.audit('MDIMKOV', '');
 
 
-                    if (templateType == 'B2B') { // ##
+                    if (templateType == 'B2B') {
                         // MDIMKOV 01.11.2022: this is a *** B2B *** invoice
                         log.debug('MDIMKOV', 'proceed with B2B...');
 
-                        const formId = 1; // 'B2B' in the respective list
 
                         // MDIMKOV 01.11.2022: set the correct invoice/SO form (B2B, English)
                         if (type === 'invoice') {
@@ -180,19 +163,40 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
                             log.debug('MDIMKOV', 'set form to 127 (sales order)');
                         }
 
-                        const bankData = _lib.locGetBankInfo(formId, subsidiaryId, currencyId, billCountryId);
 
                         // MDIMKOV 01.11.2022: set the payment IBAN and the VAT Reg Num
-                        rec.setValue('custbody_akt_pmt_iban', bankData.iban);
-                        rec.setValue('custbody_akt_pmt_bic', bankData.bic);
-                        rec.setValue('custbody_akt_vat_reg_num', bankData.vat);
-                        rec.setValue('custbody_akt_pmt_bankname', bankData.bankname);
+                        if (billCountry === 'CH') {
+                            log.debug('MDIMKOV', '... case is CH');
+                            rec.setValue('custbody_akt_pmt_iban', 'CH050029029013042301R');
+                            rec.setValue('custbody_akt_pmt_bic', 'UBSWCHZH80A');
+                            rec.setValue('custbody_akt_vat_reg_num', 'CHE-149.232.500');
+                            rec.setValue('custbody_akt_pmt_bankname', 'UBS Switzerland AG');
 
-                    } else if (type === 'invoice' && templateType == 'B2C') { // ##
+                        } else if (billCountry === 'GB') {
+                            log.debug('MDIMKOV', '... case is GB');
+                            rec.setValue('custbody_akt_pmt_iban', 'CH490029029013042361P');
+                            rec.setValue('custbody_akt_pmt_bic', 'UBSWCHZH80A');
+                            rec.setValue('custbody_akt_vat_reg_num', 'GB379786416');
+                            rec.setValue('custbody_akt_pmt_bankname', 'UBS Switzerland AG');
+
+                        } else if (billCountry === 'FR' || billCountry === 'IE' || billCountry === 'DE' || billCountry === 'AT' || billCountry === 'IT') {
+                            log.debug('MDIMKOV', '... case is FR, IE, DE, AT, IT');
+                            rec.setValue('custbody_akt_pmt_iban', 'DE40502200853422070017');
+                            rec.setValue('custbody_akt_pmt_bic', 'SMHBDEFF');
+                            rec.setValue('custbody_akt_vat_reg_num', 'NL862305688B01');
+                            rec.setValue('custbody_akt_pmt_bankname', 'UBS Europe SE');
+
+                        } else { // all others
+                            log.debug('MDIMKOV', '... case is DEFAULT');
+                            rec.setValue('custbody_akt_pmt_iban', 'CH820029029013042360G');
+                            rec.setValue('custbody_akt_pmt_bic', 'UBSWCHZH80A');
+                            rec.setValue('custbody_akt_vat_reg_num', 'CHE-149.232.500');
+                            rec.setValue('custbody_akt_pmt_bankname', 'UBS Switzerland AG');
+                        }
+
+                    } else if (type === 'invoice' && templateType == 'B2C') {
                         // MDIMKOV 01.11.2022: this is a *** B2C *** invoice
                         log.debug('MDIMKOV', 'proceed with B2C...');
-
-                        const formId = 2; // 'B2C' in the respective list
 
                         // MDIMKOV 01.11.2022: set the correct invoice form (B2C, specific language)
                         switch (language) {
@@ -221,8 +225,21 @@ define(['N/record', 'N/search', 'SuiteScripts/_Libraries/_lib'],
                         }
 
                         // MDIMKOV 01.11.2022: set the VAT Reg Num
-                        const bankData = _lib.locGetBankInfo(formId, subsidiaryId, null, shipCountryId);
-                        rec.setValue('custbody_akt_vat_reg_num', bankData.vat);
+                        switch (shipCountry) {
+                            case 'CH':
+                                log.debug('MDIMKOV', '... case is CH');
+                                rec.setValue('custbody_akt_vat_reg_num', 'CHE-149.232.500');
+                                break;
+
+                            case 'GB':
+                                log.debug('MDIMKOV', '... case is GB');
+                                rec.setValue('custbody_akt_vat_reg_num', 'GB379786416');
+                                break;
+
+                            default: // FR, IE, DE, AT, IT
+                                log.debug('MDIMKOV', '... case is DEFAULT');
+                                rec.setValue('custbody_akt_vat_reg_num', 'NL862305688B01');
+                        }
 
                     }
 

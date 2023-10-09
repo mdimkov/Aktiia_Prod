@@ -8,20 +8,6 @@
   <notifyuser>F</notifyuser>
   <scriptfile>[/SuiteScripts/Scripts/akt_inv_form_chooser_ue.js]</scriptfile>
   <scriptdeployments>
-    <scriptdeployment scriptid="customdeploy_akt_inv_form_chooser_ue_qu">
-      <allemployees>T</allemployees>
-      <alllocalizationcontexts>T</alllocalizationcontexts>
-      <allpartners>F</allpartners>
-      <allroles>T</allroles>
-      <audslctrole></audslctrole>
-      <eventtype></eventtype>
-      <executioncontext>ACTION|ADVANCEDREVREC|BANKCONNECTIVITY|BANKSTATEMENTPARSER|BUNDLEINSTALLATION|CLIENT|CONSOLRATEADJUSTOR|CSVIMPORT|CUSTOMGLLINES|CUSTOMMASSUPDATE|DATASETBUILDER|DEBUGGER|EMAILCAPTURE|FICONNECTIVITY|FIPARSER|MAPREDUCE|OCRPLUGIN|OTHER|PAYMENTGATEWAY|PAYMENTPOSTBACK|PLATFORMEXTENSION|PORTLET|PROMOTIONS|RECORDACTION|RESTLET|RESTWEBSERVICES|SCHEDULED|SDFINSTALLATION|SHIPPINGPARTNERS|SUITELET|TAXCALCULATION|USEREVENT|USERINTERFACE|WEBSERVICES|WORKBOOKBUILDER|WORKFLOW</executioncontext>
-      <isdeployed>T</isdeployed>
-      <loglevel>DEBUG</loglevel>
-      <recordtype>ESTIMATE</recordtype>
-      <runasrole>ADMINISTRATOR</runasrole>
-      <status>RELEASED</status>
-    </scriptdeployment>
     <scriptdeployment scriptid="customdeploy_akt_inv_form_chooser_ue_so">
       <allemployees>T</allemployees>
       <alllocalizationcontexts>T</alllocalizationcontexts>
@@ -33,6 +19,20 @@
       <isdeployed>T</isdeployed>
       <loglevel>DEBUG</loglevel>
       <recordtype>SALESORDER</recordtype>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>RELEASED</status>
+    </scriptdeployment>
+    <scriptdeployment scriptid="customdeploy_akt_inv_form_chooser_ue_qu">
+      <allemployees>T</allemployees>
+      <alllocalizationcontexts>T</alllocalizationcontexts>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <executioncontext>ACTION|ADVANCEDREVREC|BANKCONNECTIVITY|BANKSTATEMENTPARSER|BUNDLEINSTALLATION|CLIENT|CONSOLRATEADJUSTOR|CSVIMPORT|CUSTOMGLLINES|CUSTOMMASSUPDATE|DATASETBUILDER|DEBUGGER|EMAILCAPTURE|FICONNECTIVITY|FIPARSER|MAPREDUCE|OCRPLUGIN|OTHER|PAYMENTGATEWAY|PAYMENTPOSTBACK|PLATFORMEXTENSION|PORTLET|PROMOTIONS|RECORDACTION|RESTLET|RESTWEBSERVICES|SCHEDULED|SDFINSTALLATION|SHIPPINGPARTNERS|SUITELET|TAXCALCULATION|USEREVENT|USERINTERFACE|WEBSERVICES|WORKBOOKBUILDER|WORKFLOW</executioncontext>
+      <isdeployed>T</isdeployed>
+      <loglevel>DEBUG</loglevel>
+      <recordtype>ESTIMATE</recordtype>
       <runasrole>ADMINISTRATOR</runasrole>
       <status>RELEASED</status>
     </scriptdeployment>

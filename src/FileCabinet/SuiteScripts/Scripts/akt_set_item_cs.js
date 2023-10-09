@@ -69,15 +69,17 @@ define(['N/record', 'N/search', 'N/currentRecord', 'SuiteScripts/_Libraries/_lib
 
                 // MDIMKOV 06.12.2022: get the location from the underlying transaction
                 const soWareHouseId = _lib.getFieldValue('location', 'transaction', createdFromId, null, 'value');
+                const soWareHouseName = _lib.getFieldValue('location', 'transaction', createdFromId, null, 'text');
+                log.debug('MDIMKOV', 'soWareHouseId: ' + soWareHouseId);
+                log.debug('MDIMKOV', 'soWareHouseName: ' + soWareHouseName);
 
-                if (!soWareHouseId) {
-                    return;
-                }
 
 
-                // MDIMKOV 06.12.2022: set the location on the Return Authorization;
-                // NOTE: each Quarantine location's ID is the main location ID + 1 (may change in future)
-                const quarantineWhId = +soWareHouseId + 1
+                // MDIMKOV 06.12.2022: set the location on the Return Authorization based on the setup screen based on [customrecord_akt_warehouse_chooser] record type
+                let quarantineWhId = 0;
+
+                quarantineWhId = _lib.singleRecordSearch('customrecord_akt_warehouse_chooser',
+                    ['custrecord_akt_wcf_original_wh', 'anyof', soWareHouseId], 'custrecord_akt_wcf_target_wh', false);
                 rec.setValue('location', quarantineWhId);
 
 

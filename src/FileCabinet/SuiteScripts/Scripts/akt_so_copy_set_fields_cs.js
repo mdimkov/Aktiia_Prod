@@ -75,6 +75,7 @@ define(['N/record', 'N/search', 'N/currentRecord', 'SuiteScripts/_Libraries/_lib
                     rec.setValue('custbody_akt_ogl_sent_to_3pl', false);
                     rec.setValue('custbody_akt_flg_sent_to_3pl', false);
                     rec.setValue('custbody_akt_kin_sent_to_3pl', false);
+                    rec.setValue('custbody_akt_chg_sent_to_3pl', false);
                     rec.setValue('custbody_akt_ogl_webhook_sent', false);
                     rec.setValue('custbody_akt_ok_for_3pl', false);
                     rec.setValue('custbody_akt_3plfulfilled', false);
