@@ -1,0 +1,34 @@
+<suitelet scriptid="customscript_md_redirect_to_object_sl">
+  <description>Created 04/2022 by MDIMKOV
+this suitelet is used by Chrome bookmark apps
+it redirects the user to the respective object by id (e.g. customscript_xxx)
+the advantage is that the internal IDs are resolved durng runtime, allowing for easily moving the objects between different environments
+the script checks first if the internal id is not passed anyways, so that the user can be immediately redirected (e.g. to record with id=123)
+if not, it checks if the respective cache has the internal id for the object id passed
+if not, the user is just being redirected to the respective list of objects (e.g. list of fields or scripts etc.)
+note that a M/R script [md_load_id_to_internalid_mr.js] is also used to load the respective id-internalid pairs
+for more information please contact
+milcho.dimkov@inplenion.com</description>
+  <isinactive>F</isinactive>
+  <name>MD Redirect To NetSuite Object By Id</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/MDTools/md_redirect_to_object_sl.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_md_redirect_to_object_sl">
+      <allemployees>F</allemployees>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <isdeployed>T</isdeployed>
+      <isonline>T</isonline>
+      <loglevel>AUDIT</loglevel>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>RELEASED</status>
+      <title>MD Redirect To NetSuite Object By Id</title>
+    </scriptdeployment>
+  </scriptdeployments>
+</suitelet>

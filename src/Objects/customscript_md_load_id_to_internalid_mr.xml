@@ -1,0 +1,35 @@
+<mapreducescript scriptid="customscript_md_load_id_to_internalid_mr">
+  <description>Created 04/2022 by MDIMKOV
+this map-reduce script loads (for several object types, such as fields and scripts) the id-to-internalid pairs into the [MD Object Id To Internal Id] record type
+for some objects (such as scripts, lists, record types and saved searches) this is easily done, as a saved search can be built for each of those
+for others, such as custom fields, no saved search can be built, so the M/R script will just iterate potential internal IDs from 1 to 10,000 and try to get the object IDs for them; when an object ID is found, it&apos;s recorded in the [MD Object Id To Internal Id] record type
+Finally the [] suitelet loads the records into the cache by using a loader function - if the value for the respective object ID is not found, the loader function performs a search on the [MD Object Id To Internal Id] record type and loads the value from there
+for more information please contact
+milcho.dimkov@inplenion.com</description>
+  <isinactive>F</isinactive>
+  <name>MD Load ID To Internalid Pairs</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <scriptfile>[/SuiteScripts/MDTools/md_load_id_to_internalid_mr.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_md_load_id_to_internalid_mr">
+      <buffersize>1</buffersize>
+      <concurrencylimit>1</concurrencylimit>
+      <isdeployed>T</isdeployed>
+      <loglevel>AUDIT</loglevel>
+      <queueallstagesatonce>T</queueallstagesatonce>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>NOTSCHEDULED</status>
+      <title>MD Load ID To Internalid Pairs</title>
+      <yieldaftermins>60</yieldaftermins>
+      <recurrence>
+        <single>
+          <repeat></repeat>
+          <startdate>2022-01-01</startdate>
+          <starttime>22:00:00Z</starttime>
+        </single>
+      </recurrence>
+    </scriptdeployment>
+  </scriptdeployments>
+</mapreducescript>

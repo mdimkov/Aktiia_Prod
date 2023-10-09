@@ -1,0 +1,67 @@
+<transactionbodycustomfield scriptid="custbody_md_switch_curr_msg">
+  <accesslevel>2</accesslevel>
+  <applyformatting>F</applyformatting>
+  <bodycustomerpayment>T</bodycustomerpayment>
+  <bodycustomtransactions></bodycustomtransactions>
+  <bodydeposit>T</bodydeposit>
+  <bodydepositapplication>T</bodydepositapplication>
+  <bodyexpensereport>T</bodyexpensereport>
+  <bodyinventoryadjustment>T</bodyinventoryadjustment>
+  <bodyitemfulfillment>T</bodyitemfulfillment>
+  <bodyitemfulfillmentorder>F</bodyitemfulfillmentorder>
+  <bodyitemreceipt>T</bodyitemreceipt>
+  <bodyitemreceiptorder>F</bodyitemreceiptorder>
+  <bodyjournal>T</bodyjournal>
+  <bodyopportunity>T</bodyopportunity>
+  <bodyothertransaction>F</bodyothertransaction>
+  <bodyperiodendjournal>F</bodyperiodendjournal>
+  <bodypickingticket>F</bodypickingticket>
+  <bodyprintflag>F</bodyprintflag>
+  <bodyprintpackingslip>F</bodyprintpackingslip>
+  <bodyprintstatement>F</bodyprintstatement>
+  <bodypurchase>T</bodypurchase>
+  <bodysale>T</bodysale>
+  <bodytransferorder>T</bodytransferorder>
+  <bodyvendorpayment>T</bodyvendorpayment>
+  <checkspelling>F</checkspelling>
+  <defaultchecked>F</defaultchecked>
+  <defaultselection></defaultselection>
+  <defaultvalue></defaultvalue>
+  <description>Created 05/2023 by MDIMKOV&#xd;
+This hidden field is used in conjunction with UE script [md_change_curr_ue.js] - when currency is selected and the record is saved, the script will try to change the transaction currency. If there is an error message, it will be stamped into this field and displayed on the [beforeLoad] of the UE script&#xd;
+for more information please contact&#xd;
+mdimkov@hotmail.com</description>
+  <displayheight></displayheight>
+  <displaytype>HIDDEN</displaytype>
+  <displaywidth></displaywidth>
+  <dynamicdefault></dynamicdefault>
+  <encryptatrest>F</encryptatrest>
+  <fieldtype>TEXT</fieldtype>
+  <fldsizelabel></fldsizelabel>
+  <globalsearch>F</globalsearch>
+  <help>Created 05/2023 by MDIMKOV&#xd;
+This hidden field is used in conjunction with UE script [md_change_curr_ue.js] - when currency is selected and the record is saved, the script will try to change the transaction currency. If there is an error message, it will be stamped into this field and displayed on the [beforeLoad] of the UE script&#xd;
+for more information please contact&#xd;
+mdimkov@hotmail.com</help>
+  <isformula>F</isformula>
+  <ismandatory>F</ismandatory>
+  <isparent>F</isparent>
+  <label>Switch Currency Message</label>
+  <linktext></linktext>
+  <maxlength></maxlength>
+  <maxvalue></maxvalue>
+  <minvalue></minvalue>
+  <onparentdelete></onparentdelete>
+  <parentsubtab></parentsubtab>
+  <searchcomparefield></searchcomparefield>
+  <searchdefault></searchdefault>
+  <searchlevel>2</searchlevel>
+  <selectrecordtype></selectrecordtype>
+  <showhierarchy>F</showhierarchy>
+  <showinlist>F</showinlist>
+  <sourcefilterby></sourcefilterby>
+  <sourcefrom></sourcefrom>
+  <sourcelist></sourcelist>
+  <storevalue>T</storevalue>
+  <subtab></subtab>
+</transactionbodycustomfield>

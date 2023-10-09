@@ -1,0 +1,19 @@
+<customlist scriptid="customlist_akt_invoice_form">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>T</isordered>
+  <name>AKT Invoice Form</name>
+  <customvalues>
+    <customvalue scriptid="val_6326897_8035173_781">
+      <abbreviation>B</abbreviation>
+      <isinactive>F</isinactive>
+      <value>B2B</value>
+    </customvalue>
+    <customvalue scriptid="val_6326898_8035173_476">
+      <abbreviation>B</abbreviation>
+      <isinactive>F</isinactive>
+      <value>B2C</value>
+    </customvalue>
+  </customvalues>
+</customlist>

@@ -1,0 +1,9 @@
+<advancedpdftemplate scriptid="custtmpl_akt_b2b_cm_tmpl_pdf_en" standard="STDTMPLCUSTCRED">
+  <description></description>
+  <displaysourcecode>T</displaysourcecode>
+  <isinactive>F</isinactive>
+  <preferred>T</preferred>
+  <printtype>TRANSACTION</printtype>
+  <title>Aktiia CM B2B EN PDF</title>
+  <trantype>CUSTCRED</trantype>
+</advancedpdftemplate>

@@ -1,0 +1,28 @@
+<suitelet scriptid="customscript_md_test_script_sl">
+  <description>Created 04/2022 by MDIMKOV
+this is a simple suitelet that can be launched any time to test a certain code block - used for testing something in-between while developing
+for more information please contact
+milcho.dimkov@inplenion.com</description>
+  <isinactive>F</isinactive>
+  <name>MD Test Suitelet</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/MDTools/md_test_script_sl.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_md_test_script_sl">
+      <allemployees>F</allemployees>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <isdeployed>T</isdeployed>
+      <isonline>F</isonline>
+      <loglevel>AUDIT</loglevel>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>RELEASED</status>
+      <title>MD Test Suitelet</title>
+    </scriptdeployment>
+  </scriptdeployments>
+</suitelet>
